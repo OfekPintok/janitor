@@ -4,13 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.createSavedStateHandle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.ofekpintok.janitor.features.janitor.domain.CalculateTripsUseCase
+import com.ofekpintok.janitor.features.janitor.ui.JanitorScreen
+import com.ofekpintok.janitor.features.janitor.ui.viewmodel.JanitorViewModel
 import com.ofekpintok.janitor.ui.theme.JanitorTheme
 
 class MainActivity : ComponentActivity() {
@@ -18,30 +18,20 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            JanitorTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+            val janitorViewModel: JanitorViewModel = viewModel(
+                factory = viewModelFactory {
+                    initializer {
+                        JanitorViewModel(
+                            savedStateHandle = createSavedStateHandle(),
+                            calculateTripsUseCase = CalculateTripsUseCase()
+                        )
+                    }
                 }
+            )
+
+            JanitorTheme {
+                JanitorScreen(janitorViewModel)
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    JanitorTheme {
-        Greeting("Android")
     }
 }

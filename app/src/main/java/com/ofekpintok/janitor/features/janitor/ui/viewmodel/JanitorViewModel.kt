@@ -20,6 +20,11 @@ class JanitorViewModel(
     private val calculateTripsUseCase: CalculateTripsUseCase
 ): ViewModel() {
 
+    companion object {
+        const val MIN_WEIGHT = 1.01
+        const val MAX_WEIGHT = 3.00
+    }
+
     private val _bagsState: MutableStateFlow<List<Bag>> = savedStateHandle.getMutableStateFlow("bags_key", emptyList())
 
     val bagsState =
@@ -33,7 +38,7 @@ class JanitorViewModel(
 
     val tripsState =
         _bagsState
-            .map { calculateTripsUseCase(it) }
+            .map { calculateTripsUseCase(it).toImmutableList() }
             .flowOn(Dispatchers.Default)
             .stateIn(
                 viewModelScope,
@@ -52,4 +57,10 @@ class JanitorViewModel(
             persistentListOf()
         }
     }
+
+    fun isOutOfRange(weightInput: String): Boolean {
+        val weight = weightInput.toDoubleOrNull() ?: return false
+        return weight !in MIN_WEIGHT..MAX_WEIGHT
+    }
+
 }
